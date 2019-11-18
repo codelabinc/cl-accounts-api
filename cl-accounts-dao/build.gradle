@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+
+group 'com.codelab.accounts'
+version '0.0.1-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile(project(":${rootProject.name}-domain"))
+    compile group: 'org.springframework.data', name: 'spring-data-jpa', version: '2.0.9.RELEASE'
+    compile group: 'com.querydsl', name: 'querydsl-jpa', version: '4.2.1'
+    compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.2.Final'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

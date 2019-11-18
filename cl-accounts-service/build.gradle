@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+
+group 'com.codelab.accounts'
+version '0.0.1-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile(project(":${rootProject.name}-dao"))
+    // https://mvnrepository.com/artifact/org.springframework.security/spring-security-core
+    compile group: 'org.springframework.security', name: 'spring-security-core', version: '5.2.1.RELEASE'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
