@@ -10,14 +10,13 @@ import com.codelab.accounts.conf.exception.NotFoundException;
 import com.codelab.accounts.dao.PortalAccountDao;
 import com.codelab.accounts.dao.PortalUserDao;
 import com.codelab.accounts.domain.request.LoginDto;
-import com.codelab.accounts.domain.response.HttpError;
 import com.codelab.accounts.service.auth.AuthenticationService;
 import com.querydsl.core.types.Predicate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.inject.Inject;
 import javax.validation.Valid;
 
 /**
@@ -33,10 +32,13 @@ public class AuthenticationController {
 
     private final PortalAccountDao portalAccountDao;
 
-    public AuthenticationController(PortalUserDao portalUserDao, AuthenticationService authenticationService, PortalAccountDao portalAccountDao) {
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    public AuthenticationController(PortalUserDao portalUserDao, AuthenticationService authenticationService, PortalAccountDao portalAccountDao, BCryptPasswordEncoder passwordEncoder) {
         this.portalUserDao = portalUserDao;
         this.authenticationService = authenticationService;
         this.portalAccountDao = portalAccountDao;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")
@@ -54,6 +56,9 @@ public class AuthenticationController {
                 .and(identifierIsEmail ? emailPredicate: usernamePredicate);
         PortalUser portalUser = portalUserDao.findOne(predicate)
                 .orElseThrow(() -> new NotFoundException(String.format("User with %s %s not found", identifierIsEmail? "email": "username", dto.getIdentifier())));
+        if(passwordEncoder.matches(dto.getPassword().trim(), portalUser.getPassword())) {
+            throw new ApiException("Invalid Login Credentials", HttpStatus.BAD_REQUEST);
+        }
         String token = authenticationService.doLogin(portalUser, portalAccount);
         return ResponseEntity.ok(token);
     }

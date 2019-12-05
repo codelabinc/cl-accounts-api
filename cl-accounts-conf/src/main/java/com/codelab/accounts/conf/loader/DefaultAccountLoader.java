@@ -55,7 +55,7 @@ public class DefaultAccountLoader {
         UserCreationDto dto = new UserCreationDto();
         dto.setFirstName("Nathaniel");
         dto.setLastName("Edeki");
-        dto.setPassword("");
+        dto.setPassword("abercrombie");
         dto.setUsername("nedeki");
         dto.setPhoneNumber("+2348028584732");
         dto.setEmail("nathanieledeki@gmail.com");

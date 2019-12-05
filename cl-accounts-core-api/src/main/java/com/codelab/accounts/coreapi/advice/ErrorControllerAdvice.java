@@ -1,5 +1,6 @@
 package com.codelab.accounts.coreapi.advice;
 
+import com.codelab.accounts.conf.exception.ApiException;
 import com.codelab.accounts.conf.exception.NotFoundException;
 import com.codelab.accounts.domain.response.HttpError;
 import org.slf4j.Logger;
@@ -22,6 +23,10 @@ public class ErrorControllerAdvice {
         return new ResponseEntity(new HttpError(HttpStatus.BAD_REQUEST.value(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ApiException> handle(ApiException e) {
+        return new ResponseEntity(new HttpError(e.getHttpStatus().value(), e.getMessage()), e.getHttpStatus());
+    }
     @ExceptionHandler({ ConstraintViolationException.class })
     public ResponseEntity<Object> handleConstraintViolation(
             ConstraintViolationException ex) {
