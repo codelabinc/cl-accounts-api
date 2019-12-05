@@ -1,5 +1,6 @@
 package com.codelab.accounts.jwt;
 
+import com.codelab.accounts.domain.enumeration.TokenClaimsConstant;
 import com.codelab.accounts.domain.response.TokenResponse;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -21,7 +22,7 @@ import java.util.List;
 @Singleton
 public final class TokenService {
 
-    private final JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+    private final JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS256);
 
     @Value("${TOKEN_SECRET:}")
     private String tokenSecret;
@@ -42,8 +43,11 @@ public final class TokenService {
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(String.valueOf(tokenResponse.getUser().getId()))
                 .issuer("https://codelab.com")
-                .claim("roles", tokenResponse.getRoles())
-                .claim("permissions", tokenResponse.getPermissions())
+                .claim(TokenClaimsConstant.ACCOUNT_CODE.getValue(), tokenResponse.getAccount().getCode())
+                .claim(TokenClaimsConstant.ROLES.getValue(), tokenResponse.getRoles())
+                .claim(TokenClaimsConstant.PERMISSIONS.getValue(), tokenResponse.getPermissions())
+                .claim(TokenClaimsConstant.USER_FULL_NAME.getValue(), tokenResponse.getUser().getLastName() + " " + tokenResponse.getUser().getFirstName())
+                .claim(TokenClaimsConstant.ACCOUNT_NAME.getValue(), tokenResponse.getAccount().getName())
                 .expirationTime(Date.from(LocalDateTime.now().plusMinutes(5).atZone(ZoneId.systemDefault()).toInstant()))
                 .build();
         SignedJWT signedJWT = new SignedJWT(jwsHeader, claimsSet);

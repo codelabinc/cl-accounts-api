@@ -12,9 +12,9 @@ import java.util.UUID;
  */
 public class KeyGen {
     public static void main(String[] args) throws JOSEException {
-        OctetSequenceKey jwk = new OctetSequenceKeyGenerator(512)
+        OctetSequenceKey jwk = new OctetSequenceKeyGenerator(256)
                 .keyID(UUID.randomUUID().toString()) // give the key some ID (optional)
-                .algorithm(JWSAlgorithm.HS512) // indicate the intended key alg (optional)
+                .algorithm(JWSAlgorithm.HS256) // indicate the intended key alg (optional)
                 .generate();
 
         System.out.println(jwk);
