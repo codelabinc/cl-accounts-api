@@ -1,9 +1,6 @@
 package com.codelab.accounts.service.principal;
 
-import com.cl.accounts.entity.Membership;
-import com.cl.accounts.entity.Permission;
-import com.cl.accounts.entity.PortalUser;
-import com.cl.accounts.entity.Role;
+import com.cl.accounts.entity.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,17 +11,15 @@ import java.util.List;
 public interface RequestPrincipal {
     PortalUser getLoggedInUser();
 
+    PortalAccount getPortalAccount();
+
     String getIpAddress();
 
-    default List<Role> getRoles() {
+    default List<String> getRoles() {
         return Collections.emptyList();
     }
 
-    default List<Permission> getPermissions() {
-        return Collections.emptyList();
-    }
-
-    default List<Membership> getMemberships() {
+    default List<String> getPermissions() {
         return Collections.emptyList();
     }
 }

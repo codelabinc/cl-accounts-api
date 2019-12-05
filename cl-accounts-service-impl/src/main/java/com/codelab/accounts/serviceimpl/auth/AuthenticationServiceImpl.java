@@ -3,7 +3,8 @@ package com.codelab.accounts.serviceimpl.auth;
 import com.cl.accounts.entity.Membership;
 import com.cl.accounts.entity.PortalAccount;
 import com.cl.accounts.entity.PortalUser;
-import com.codelab.accounts.domain.response.HttpError;
+import com.codelab.accounts.dao.AppRepository;
+import com.codelab.accounts.domain.response.LoginResponse;
 import com.codelab.accounts.domain.response.NameCodeResponse;
 import com.codelab.accounts.domain.response.TokenResponse;
 import com.codelab.accounts.domain.response.UserResponse;
@@ -15,7 +16,7 @@ import com.codelab.accounts.service.membership.PermissionService;
 import com.nimbusds.jose.JOSEException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -39,20 +40,28 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final TokenService tokenService;
 
-    public AuthenticationServiceImpl(MembershipService membershipService, MemberRoleService memberRoleService, PermissionService permissionService, TokenService tokenService) {
+    private final AppRepository appRepository;
+
+    public AuthenticationServiceImpl(MembershipService membershipService, MemberRoleService memberRoleService, PermissionService permissionService, TokenService tokenService, AppRepository appRepository) {
         this.membershipService = membershipService;
         this.memberRoleService = memberRoleService;
         this.permissionService = permissionService;
         this.tokenService = tokenService;
+        this.appRepository = appRepository;
     }
 
     @Override
-    public String doLogin(PortalUser portalUser, PortalAccount portalAccount){
+    @Transactional
+    public LoginResponse generateLoginResponse(PortalUser portalUser, PortalAccount portalAccount){
         List<String> permissions = new ArrayList<>();
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setAccount(new NameCodeResponse(portalAccount.getName(), portalAccount.getCode()));
         Membership membership = membershipService.getMembershipByPortalUserAndPortalAccount(portalUser, portalAccount)
                 .orElseThrow(() -> new IllegalArgumentException("No Membership for User"));
+        if(membership.getRequestTokenRefresh()!= null && membership.getRequestTokenRefresh().equals(Boolean.TRUE)) {
+            membership.setRequestTokenRefresh(Boolean.FALSE);
+            appRepository.merge(membership);
+        }
         tokenResponse.setUser(toUserResponse(portalUser, membership));
         tokenResponse.setRoles(memberRoleService.getRolesByMembership(membership)
                 .stream()
@@ -63,9 +72,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     return role.getName().getValue();
                 }).collect(Collectors.toList()));
         tokenResponse.setPermissions(permissions);
-        logger.info(tokenResponse.toString());
         try {
-            return tokenService.createToken(tokenResponse);
+            return new LoginResponse(tokenService.createToken(tokenResponse));
         } catch (JOSEException e) {
             e.printStackTrace();
             throw new IllegalArgumentException("Could not generate User Token");
