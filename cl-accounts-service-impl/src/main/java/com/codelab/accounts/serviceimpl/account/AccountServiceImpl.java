@@ -5,7 +5,7 @@ import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.cl.accounts.enumeration.PortalAccountTypeConstant;
 import com.codelab.accounts.dao.AppRepository;
 import com.codelab.accounts.domain.qualifier.AccountCodeSequence;
-import com.codelab.accounts.domain.requests.AccountCreationDto;
+import com.codelab.accounts.domain.request.AccountCreationDto;
 import com.codelab.accounts.service.account.AccountService;
 import com.codelab.accounts.service.sequence.SequenceGenerator;
 

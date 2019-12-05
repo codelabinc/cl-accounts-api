@@ -2,9 +2,6 @@ package com.codelab.accounts.conf.configuration;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +18,8 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorFactory;
 
 @Configuration
-@ComponentScan({"com.codelab.accounts.service", "com.codelab.accounts.dao", "com.codelab.accounts.serviceimpl", "com.codelab.accounts.conf"})
+@ComponentScan({"com.codelab.accounts.service", "com.codelab.accounts.dao",
+        "com.codelab.accounts.serviceimpl", "com.codelab.accounts.conf", "com.codelab.accounts.jwt"})
 @EnableJpaRepositories({"com.codelab.accounts.dao"})
 //@EnableTransactionManagement
 public class ServiceLayerConfiguration {

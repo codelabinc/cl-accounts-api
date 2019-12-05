@@ -1,7 +1,7 @@
 package com.codelab.accounts.service.account;
 
 import com.cl.accounts.entity.PortalAccount;
-import com.codelab.accounts.domain.requests.AccountCreationDto;
+import com.codelab.accounts.domain.request.AccountCreationDto;
 
 /**
  * @author lordUhuru 16/11/2019

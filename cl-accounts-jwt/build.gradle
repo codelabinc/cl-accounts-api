@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+}
+
+group 'com.codelab.accounts'
+version '0.0.1-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation (project(":${rootProject.name}-domain"))
+    // https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt
+    compile group: 'javax.inject', name: 'javax.inject', version: '1'
+    compile group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '8.2.1'
+    // https://mvnrepository.com/artifact/org.springframework/spring-beans
+    compile group: 'org.springframework', name: 'spring-beans', version: '5.2.1.RELEASE'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
