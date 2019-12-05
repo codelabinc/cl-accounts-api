@@ -1,19 +1,15 @@
 package com.codelab.accounts.conf.loader;
 
-import com.cl.accounts.entity.AssignableRoleTypesToAccount;
-import com.cl.accounts.entity.Permission;
-import com.cl.accounts.entity.Role;
-import com.cl.accounts.entity.RolePermission;
+import com.cl.accounts.entity.*;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.cl.accounts.enumeration.PermissionConstant;
 import com.cl.accounts.enumeration.PortalAccountTypeConstant;
 import com.cl.accounts.enumeration.RoleTypeConstant;
-import com.codelab.accounts.dao.AssignableRoleTypesToAccountDao;
-import com.codelab.accounts.dao.PermissionDao;
-import com.codelab.accounts.dao.RoleDao;
-import com.codelab.accounts.dao.RolePermissionDao;
-import com.codelab.accounts.domain.enumeration.CodelabRolePermission;
+import com.codelab.accounts.conf.exception.NotFoundException;
+import com.codelab.accounts.dao.*;
+import com.codelab.accounts.domain.enumeration.CodeLabRolePermission;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -29,13 +25,16 @@ public class RolePermissionLoader {
 
     private final RolePermissionDao rolePermissionDao;
 
+    private final PortalAccountDao portalAccountDao;
+
     private final AssignableRoleTypesToAccountDao assignableRoleTypesToAccountDao;
 
-    public RolePermissionLoader(RoleDao roleDao, PermissionDao permissionDao, RolePermissionDao rolePermissionDao, AssignableRoleTypesToAccountDao assignableRoleTypesToAccountDao) {
+    public RolePermissionLoader(RoleDao roleDao, PermissionDao permissionDao, RolePermissionDao rolePermissionDao, AssignableRoleTypesToAccountDao assignableRoleTypesToAccountDao, PortalAccountDao portalAccountDao) {
         this.roleDao = roleDao;
         this.permissionDao = permissionDao;
         this.rolePermissionDao = rolePermissionDao;
         this.assignableRoleTypesToAccountDao = assignableRoleTypesToAccountDao;
+        this.portalAccountDao = portalAccountDao;
     }
 
     public void loadRoles() {
@@ -63,7 +62,7 @@ public class RolePermissionLoader {
     }
 
     public void loadCodelabRolePermissions() {
-        for (CodelabRolePermission codelabRolePermission : CodelabRolePermission.values()) {
+        for (CodeLabRolePermission codelabRolePermission : CodeLabRolePermission.values()) {
             assignableRoleTypesToAccountDao
                     .findByRole_NameAndPortalAccountTypeAndStatus(codelabRolePermission.roleName(),
                             PortalAccountTypeConstant.CODELAB, EntityStatusConstant.ACTIVE).orElseGet(() -> {
@@ -76,14 +75,17 @@ public class RolePermissionLoader {
                 assignableRoleTypesToAccount.setStatus(EntityStatusConstant.ACTIVE);
                 assignableRoleTypesToAccountDao.save(assignableRoleTypesToAccount);
 
-                loadPermissionsForRole(role, codelabRolePermission.permissions());
+                PortalAccount portalAccount = portalAccountDao.findOne(QPortalAccount.portalAccount.type.eq(PortalAccountTypeConstant.CODELAB))
+                        .orElseThrow(() -> new IllegalArgumentException(String.format("Account %s not found", PortalAccountTypeConstant.CODELAB.value())));
+
+                loadPermissionsForRole(role, portalAccount , codelabRolePermission.permissions());
 
                 return assignableRoleTypesToAccount;
             });
         }
     }
 
-    private void loadPermissionsForRole(Role role, PermissionConstant... permissions) {
+    private void loadPermissionsForRole(Role role, PortalAccount portalAccount, PermissionConstant... permissions) {
         for (PermissionConstant permissionConstant: permissions) {
             Permission permission = permissionDao.findByNameAndStatus(permissionConstant, EntityStatusConstant.ACTIVE)
                     .orElseThrow(() -> new IllegalArgumentException(String.format("Permission %s not found", permissionConstant)));
@@ -92,6 +94,7 @@ public class RolePermissionLoader {
                 rolePermission.setRole(role);
                 rolePermission.setPermission(permission);
                 rolePermission.setStatus(EntityStatusConstant.ACTIVE);
+                rolePermission.setPortalAccount(portalAccount);
                 rolePermissionDao.save(rolePermission);
                 return rolePermission;
             });

@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
@@ -52,11 +51,11 @@ public class ApplicationListener {
         if (stateDao.count() == 0) {
             locationLoader.loadStates();
         }
+        rolePermissionLoader.loadRoles();
+        rolePermissionLoader.loadPermissions();
         if(portalAccountDao.count() == 0) {
             defaultAccountLoader.createDefaultAccount();
         }
-        rolePermissionLoader.loadRoles();
-        rolePermissionLoader.loadPermissions();
         rolePermissionLoader.loadCodelabRolePermissions();
         logger.info("=====> Countries: {}", countryDao.count());
         logger.info("=====> States: {}", stateDao.count());

@@ -2,9 +2,9 @@ package com.codelab.accounts.conf.loader;
 
 import com.cl.accounts.entity.PortalAccount;
 import com.cl.accounts.enumeration.PortalAccountTypeConstant;
-import com.codelab.accounts.domain.requests.AccountCreationDto;
-import com.codelab.accounts.domain.requests.AddressDto;
-import com.codelab.accounts.domain.requests.UserCreationDto;
+import com.codelab.accounts.domain.request.AccountCreationDto;
+import com.codelab.accounts.domain.request.AddressDto;
+import com.codelab.accounts.domain.request.UserCreationDto;
 import com.codelab.accounts.service.account.AccountService;
 import com.codelab.accounts.service.user.UserService;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +18,14 @@ import javax.inject.Named;
 @Named
 public class DefaultAccountLoader {
 
-    @Inject
-    private AccountService accountService;
+    private final AccountService accountService;
 
-    @Inject
-    private UserService userService;
+    private final UserService userService;
+
+    public DefaultAccountLoader(AccountService accountService, UserService userService) {
+        this.accountService = accountService;
+        this.userService = userService;
+    }
 
 
     @Transactional
@@ -52,7 +55,7 @@ public class DefaultAccountLoader {
         UserCreationDto dto = new UserCreationDto();
         dto.setFirstName("Nathaniel");
         dto.setLastName("Edeki");
-        dto.setPassword("");
+        dto.setPassword("abercrombie");
         dto.setUsername("nedeki");
         dto.setPhoneNumber("+2348028584732");
         dto.setEmail("nathanieledeki@gmail.com");

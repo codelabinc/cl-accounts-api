@@ -3,11 +3,10 @@ package com.codelab.accounts.serviceimpl.user;
 import com.cl.accounts.entity.Membership;
 import com.cl.accounts.entity.PortalAccount;
 import com.cl.accounts.entity.PortalUser;
-import com.cl.accounts.entity.PortalUserFactory;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.cl.accounts.enumeration.RoleTypeConstant;
 import com.codelab.accounts.dao.AppRepository;
-import com.codelab.accounts.domain.requests.UserCreationDto;
+import com.codelab.accounts.domain.request.UserCreationDto;
 import com.codelab.accounts.service.membership.MemberRoleService;
 import com.codelab.accounts.service.membership.MembershipService;
 import com.codelab.accounts.service.user.UserService;
@@ -24,17 +23,20 @@ import java.util.Collections;
  */
 @Named
 public class UserServiceImpl implements UserService {
-    @Inject
-    private AppRepository appRepository;
+    private final AppRepository appRepository;
 
-    @Inject
-    private BCryptPasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    @Inject
-    private MembershipService membershipService;
+    private final MembershipService membershipService;
 
-    @Inject
-    private MemberRoleService memberRoleService;
+    private final MemberRoleService memberRoleService;
+
+    public UserServiceImpl(AppRepository appRepository, BCryptPasswordEncoder passwordEncoder, MembershipService membershipService, MemberRoleService memberRoleService) {
+        this.appRepository = appRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.membershipService = membershipService;
+        this.memberRoleService = memberRoleService;
+    }
 
     @Override
     public PortalUser createPortalUser(PortalAccount portalAccount, UserCreationDto dto) {
