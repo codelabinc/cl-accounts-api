@@ -8,8 +8,6 @@ import com.cl.accounts.enumeration.PortalAccountTypeConstant;
 import com.codelab.accounts.dao.CountryDao;
 import com.codelab.accounts.dao.StateDao;
 import com.querydsl.core.types.Predicate;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
