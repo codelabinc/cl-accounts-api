@@ -5,6 +5,7 @@ import com.cl.accounts.entity.PortalAccount;
 import com.cl.accounts.entity.PortalUser;
 import com.cl.accounts.entity.QPortalAccount;
 import com.cl.accounts.enumeration.EntityStatusConstant;
+import com.cl.accounts.enumeration.PortalUserAuthenticationTypeConstant;
 import com.codelab.accounts.dao.PortalAccountDao;
 import com.codelab.accounts.dao.PortalUserDao;
 import com.codelab.accounts.domain.enumeration.TokenClaimsConstant;
@@ -128,7 +129,7 @@ public class RequestPrincipalInterceptor extends HandlerInterceptorAdapter {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 return false;
             }
-            if (membership.getRequestTokenRefresh().equals(Boolean.TRUE)) {
+            if (membership.getRequestTokenRefresh() != null && membership.getRequestTokenRefresh().equals(Boolean.TRUE)) {
                 response.getWriter().append(gson.toJson(new ApiResponse(HttpStatus.UNAUTHORIZED.value(),
                         "Token Invalidated. Call Refresh Token API")));
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());

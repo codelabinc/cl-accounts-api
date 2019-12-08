@@ -10,10 +10,10 @@ import javax.validation.constraints.Size;
  */
 public class UserCreationDto {
     @NotBlank
-    @Min(3)
+    @Size(min=3)
     private String firstName;
     @NotBlank
-    @Min(3)
+    @Size(min=3)
     private String lastName;
     @NotBlank
     @Email

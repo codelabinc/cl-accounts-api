@@ -41,6 +41,9 @@ public class AccountController {
     @GetMapping
     public ResponseEntity<?> getAccounts(@QuerydslPredicate(root = PortalAccount.class) Predicate predicate,
                                          Pageable pageable) {
+        if (predicate == null) {
+            predicate = QPortalAccount.portalAccount.id.gt(0);
+        }
         Page<PortalAccount> page = portalAccountDao.findAll(predicate, pageable);
         return new ResponseEntity<>(page, HttpStatus.OK);
     }
@@ -49,10 +52,12 @@ public class AccountController {
     public ResponseEntity<HttpStatus> createAccount(@RequestBody @Valid AccountCreationDto dto) {
         QPortalAccount qPortalAccount = QPortalAccount.portalAccount;
 
-        portalAccountDao.findOne(qPortalAccount.code.equalsIgnoreCase(dto.getName())
+       PortalAccount portalAccount = portalAccountDao.findOne(qPortalAccount.name.equalsIgnoreCase(dto.getName())
         .and(qPortalAccount.type.eq(PortalAccountTypeConstant.valueOf(dto.getAccountType()))
-                .and(qPortalAccount.status.eq(EntityStatusConstant.ACTIVE))))
-                .orElseThrow(() -> new NotFoundException(String.format("Account with name %s not Already Exists", dto.getName())));
+                .and(qPortalAccount.status.eq(EntityStatusConstant.ACTIVE)))).orElse(null);
+       if(portalAccount != null) {
+           throw new NotFoundException(String.format("Account with name %s Already Exists", dto.getName()));
+       }
         accountService.createPortalAccount(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

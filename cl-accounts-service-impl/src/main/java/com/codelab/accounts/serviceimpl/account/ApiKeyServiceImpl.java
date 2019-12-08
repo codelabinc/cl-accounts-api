@@ -35,12 +35,12 @@ public class ApiKeyServiceImpl implements ApiKeyService {
     }
 
     @Override
-    public ApiKey createApiKey(Membership membership) {
+    public ApiKey createApiKey(PortalAccount portalAccount) {
         ApiKey apiKey = new ApiKey();
         apiKey.setDateCreated(Timestamp.from(Instant.now()));
         apiKey.setKey(generateApiKeyFrom(apiKeySequenceService.getNextLong()));
         apiKey.setStatus(EntityStatusConstant.ACTIVE);
-        apiKey.setMembership(membership);
+        apiKey.setPortalAccount(portalAccount);
         appRepository.persist(apiKey);
         return apiKey;
     }

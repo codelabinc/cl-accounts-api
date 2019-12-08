@@ -9,4 +9,5 @@ import com.codelab.accounts.domain.request.UserCreationDto;
  */
 public interface UserService {
     PortalUser createPortalUser(PortalAccount portalAccount, UserCreationDto dto);
+    PortalUser createSystemPortalUser(PortalAccount portalAccount);
 }

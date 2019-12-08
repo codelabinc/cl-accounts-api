@@ -1,6 +1,7 @@
 package com.codelab.accounts.serviceimpl.auth;
 
 import com.cl.accounts.entity.Membership;
+import com.cl.accounts.entity.Permission;
 import com.cl.accounts.entity.PortalAccount;
 import com.cl.accounts.entity.PortalUser;
 import com.codelab.accounts.dao.AppRepository;
@@ -18,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,8 +68,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .map(role -> {
                     permissions.addAll(permissionService.getPermissionsByRoleAndPortalAccount(role, portalAccount)
                             .stream()
-                            .map(permission -> permission.getName().getValue()).collect(Collectors.toList()));
-                    return role.getName().getValue();
+                            .map(Permission::getName).collect(Collectors.toList()));
+                    return role.getName();
                 }).collect(Collectors.toList()));
         tokenResponse.setPermissions(permissions);
         try {

@@ -11,7 +11,7 @@ import java.util.Optional;
  * @author lordUhuru 16/11/2019
  */
 public interface MembershipService {
-    Membership grantMembership(PortalAccount portalAccount, PortalUser portalUser);
+    Membership  grantMembership(PortalAccount portalAccount, PortalUser portalUser);
     Collection<Membership> getAllMembershipsByPortalUser(PortalUser portalUser);
 
     Optional<Membership> getMembershipByPortalUserAndPortalAccount(PortalUser portalUser, PortalAccount portalAccount);

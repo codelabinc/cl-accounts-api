@@ -5,7 +5,6 @@ import com.cl.accounts.entity.Membership;
 import com.cl.accounts.entity.QMemberRole;
 import com.cl.accounts.entity.Role;
 import com.cl.accounts.enumeration.EntityStatusConstant;
-import com.cl.accounts.enumeration.RoleTypeConstant;
 import com.codelab.accounts.dao.AppRepository;
 import com.codelab.accounts.dao.MemberRoleDao;
 import com.codelab.accounts.dao.RoleDao;
@@ -13,7 +12,6 @@ import com.codelab.accounts.service.membership.MemberRoleService;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQuery;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -38,14 +36,14 @@ public class MemberRoleServiceImpl implements MemberRoleService {
     }
 
     @Override
-    public Membership grantRole(Membership membership, Collection<RoleTypeConstant> roleTypeConstants) {
-        roleTypeConstants.forEach(roleTypeConstant -> {
+    public Membership grantRole(Membership membership, Collection<String> roleTypes) {
+        roleTypes.forEach(roleTypeConstant -> {
             MemberRole memberRole = new MemberRole();
             memberRole.setMembership(membership);
             memberRole.setStatus(EntityStatusConstant.ACTIVE);
             memberRole.setDateCreated(Timestamp.from(Instant.now()));
             memberRole.setRole(roleDao.findByNameAndStatus(roleTypeConstant, EntityStatusConstant.ACTIVE)
-                    .orElseThrow(() -> new IllegalArgumentException(String.format("Role with name %s not found", roleTypeConstant.getValue()))));
+                    .orElseThrow(() -> new IllegalArgumentException(String.format("Role with name %s not found", roleTypeConstant))));
             appRepository.persist(memberRole);
         });
         return membership;

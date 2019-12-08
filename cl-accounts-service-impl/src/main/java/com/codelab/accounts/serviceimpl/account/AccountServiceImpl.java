@@ -10,6 +10,7 @@ import com.codelab.accounts.domain.request.AccountUpdateDto;
 import com.codelab.accounts.domain.response.AccountResponse;
 import com.codelab.accounts.service.account.AccountService;
 import com.codelab.accounts.service.sequence.SequenceGenerator;
+import com.codelab.accounts.service.user.UserService;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Named;
@@ -26,21 +27,31 @@ public class AccountServiceImpl implements AccountService {
 
     private final AppRepository appRepository;
 
+    private final UserService userService;
+
     public AccountServiceImpl(@AccountCodeSequence SequenceGenerator accountCodeGenerator,
-                              AppRepository appRepository) {
+                              AppRepository appRepository, UserService userService) {
         this.accountCodeGenerator = accountCodeGenerator;
         this.appRepository = appRepository;
+        this.userService = userService;
     }
 
     @Override
+    @Transactional
     public PortalAccount createPortalAccount(AccountCreationDto dto) {
         PortalAccount portalAccount = new PortalAccount();
         portalAccount.setName(dto.getName().trim());
         portalAccount.setCode(accountCodeGenerator.getNext());
         portalAccount.setDateCreated(Timestamp.from(Instant.now()));
+        //ToDo persist description
         portalAccount.setStatus(EntityStatusConstant.ACTIVE);
         portalAccount.setType(PortalAccountTypeConstant.valueOf(dto.getAccountType()));
-        return appRepository.persist(portalAccount);
+        portalAccount = appRepository.persist(portalAccount);
+
+        userService.createPortalUser(portalAccount, dto.getAdminUser());
+        userService.createSystemPortalUser(portalAccount);
+        return portalAccount;
+
     }
 
     @Override

@@ -56,7 +56,6 @@ public class ApplicationListener {
         if(portalAccountDao.count() == 0) {
             defaultAccountLoader.createDefaultAccount();
         }
-        rolePermissionLoader.loadCodelabRolePermissions();
         logger.info("=====> Countries: {}", countryDao.count());
         logger.info("=====> States: {}", stateDao.count());
         logger.info("=====> Portal Accounts : {}", portalAccountDao.count());

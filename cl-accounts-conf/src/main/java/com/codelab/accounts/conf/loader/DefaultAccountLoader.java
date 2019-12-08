@@ -1,7 +1,13 @@
 package com.codelab.accounts.conf.loader;
 
 import com.cl.accounts.entity.PortalAccount;
+import com.cl.accounts.entity.Role;
+import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.cl.accounts.enumeration.PortalAccountTypeConstant;
+import com.codelab.accounts.conf.exception.NotFoundException;
+import com.codelab.accounts.dao.RoleDao;
+import com.codelab.accounts.domain.enumeration.SystemPermissionTypeConstant;
+import com.codelab.accounts.domain.enumeration.SystemRoleTypeConstant;
 import com.codelab.accounts.domain.request.AccountCreationDto;
 import com.codelab.accounts.domain.request.AddressDto;
 import com.codelab.accounts.domain.request.UserCreationDto;
@@ -9,7 +15,6 @@ import com.codelab.accounts.service.account.AccountService;
 import com.codelab.accounts.service.user.UserService;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 
 /**
@@ -22,9 +27,15 @@ public class DefaultAccountLoader {
 
     private final UserService userService;
 
-    public DefaultAccountLoader(AccountService accountService, UserService userService) {
+    private final RolePermissionLoader rolePermissionLoader;
+
+    private final RoleDao roleDao;
+
+    public DefaultAccountLoader(AccountService accountService, UserService userService, RolePermissionLoader rolePermissionLoader, RoleDao roleDao) {
         this.accountService = accountService;
         this.userService = userService;
+        this.rolePermissionLoader = rolePermissionLoader;
+        this.roleDao = roleDao;
     }
 
 
@@ -36,7 +47,9 @@ public class DefaultAccountLoader {
         accountCreationDto.setAddress(addressDto());
         accountCreationDto.setAdminUser(userCreationDto());
         PortalAccount portalAccount = accountService.createPortalAccount(accountCreationDto);
-        userService.createPortalUser(portalAccount, accountCreationDto.getAdminUser());
+        Role role = roleDao.findByNameAndStatus(SystemRoleTypeConstant.ADMIN.getValue(), EntityStatusConstant.ACTIVE)
+                .orElseThrow(() -> new NotFoundException("Role not found"));
+        rolePermissionLoader.loadPermissionsForRole(role, portalAccount, SystemPermissionTypeConstant.values() );
     }
 
     private AddressDto addressDto() {

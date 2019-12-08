@@ -4,15 +4,16 @@ import com.cl.accounts.entity.Membership;
 import com.cl.accounts.entity.PortalAccount;
 import com.cl.accounts.entity.PortalUser;
 import com.cl.accounts.enumeration.EntityStatusConstant;
-import com.cl.accounts.enumeration.RoleTypeConstant;
+import com.cl.accounts.enumeration.PortalUserAuthenticationTypeConstant;
+import com.cl.accounts.enumeration.PortalUserTypeConstant;
 import com.codelab.accounts.dao.AppRepository;
+import com.codelab.accounts.domain.enumeration.SystemRoleTypeConstant;
 import com.codelab.accounts.domain.request.UserCreationDto;
 import com.codelab.accounts.service.membership.MemberRoleService;
 import com.codelab.accounts.service.membership.MembershipService;
 import com.codelab.accounts.service.user.UserService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -49,9 +50,25 @@ public class UserServiceImpl implements UserService {
         portalUser.setUsername(dto.getUsername().trim());
         portalUser.setStatus(EntityStatusConstant.ACTIVE);
         portalUser.setDateCreated(Timestamp.from(Instant.now()));
+        portalUser.setAuthenticationType(PortalUserAuthenticationTypeConstant.IDENTIFIER_PASSWORD_CREDENTIALS);
+        portalUser.setType(PortalUserTypeConstant.PORTAL_USER);
         appRepository.persist(portalUser);
         Membership membership = membershipService.grantMembership(portalAccount, portalUser);
-        memberRoleService.grantRole(membership, Collections.singleton(RoleTypeConstant.ADMIN));
+        memberRoleService.grantRole(membership, Collections.singleton(SystemRoleTypeConstant.ADMIN.getValue()));
         return portalUser;
     }
+
+    @Override
+    public PortalUser createSystemPortalUser(PortalAccount portalAccount) {
+        PortalUser portalUser = new PortalUser();
+        portalUser.setLastName(portalAccount.getName());
+        portalUser.setFirstName("SYSTEM USER");
+        portalUser.setStatus(EntityStatusConstant.ACTIVE);
+        portalUser.setDateCreated(Timestamp.from(Instant.now()));
+        portalUser.setAuthenticationType(PortalUserAuthenticationTypeConstant.API_CREDENTIALS);
+        portalUser.setType(PortalUserTypeConstant.EXTERNAL_SYSTEM_USER);
+        appRepository.persist(portalUser);
+        Membership membership = membershipService.grantMembership(portalAccount, portalUser);
+        memberRoleService.grantRole(membership, Collections.singleton(SystemRoleTypeConstant.ADMIN.getValue()));
+        return portalUser;    }
 }
