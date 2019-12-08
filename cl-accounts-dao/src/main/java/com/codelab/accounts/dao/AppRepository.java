@@ -4,6 +4,8 @@ package com.codelab.accounts.dao;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.EntityPath;
 import com.querydsl.jpa.impl.JPAQuery;
+import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,4 +33,7 @@ public interface AppRepository {
     <E> Optional<E> fetchOne(JPAQuery<E> query);
 
     <E, T> QueryResults<T> fetchResults(JPAQuery<E> query, QueryResultTransformer<E, T> transformer);
+
+    @Transactional
+    <E, T> Page<T> fetchPagedResults(JPAQuery<E> query, QueryResultTransformer<E, T> transformer);
 }

@@ -6,6 +6,10 @@ import com.querydsl.core.types.EntityPath;
 import com.querydsl.jpa.impl.JPAQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,5 +97,13 @@ class AppRepositoryImpl implements AppRepository {
         QueryResults<E> results = query.fetchResults();
         return new QueryResults<T>(results.getResults().stream().map(transformer::transform)
                 .collect(Collectors.toList()), new QueryModifiers(results.getLimit(), results.getOffset()), results.getTotal());
+    }
+
+    @Transactional
+    @Override
+    public <E, T> Page<T> fetchPagedResults(JPAQuery<E> query, QueryResultTransformer<E, T> transformer) {
+        QueryResults<E> results = query.fetchResults();
+        return new PageImpl<T>(results.getResults().stream().map(transformer::transform)
+                .collect(Collectors.toList()), PageRequest.of((int)results.getOffset(), (int)results.getLimit()), results.getTotal());
     }
 }

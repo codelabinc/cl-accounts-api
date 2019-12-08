@@ -9,6 +9,7 @@ import com.cl.accounts.enumeration.PortalUserTypeConstant;
 import com.codelab.accounts.dao.AppRepository;
 import com.codelab.accounts.domain.enumeration.SystemRoleTypeConstant;
 import com.codelab.accounts.domain.request.UserCreationDto;
+import com.codelab.accounts.domain.response.PortalUserResponse;
 import com.codelab.accounts.service.membership.MemberRoleService;
 import com.codelab.accounts.service.membership.MembershipService;
 import com.codelab.accounts.service.user.UserService;
@@ -70,5 +71,20 @@ public class UserServiceImpl implements UserService {
         appRepository.persist(portalUser);
         Membership membership = membershipService.grantMembership(portalAccount, portalUser);
         memberRoleService.grantRole(membership, Collections.singleton(SystemRoleTypeConstant.ADMIN.getValue()));
-        return portalUser;    }
+        return portalUser;
+    }
+
+    @Override
+    public PortalUserResponse toUserResponse(PortalUser portalUser, Membership membership) {
+        PortalUserResponse response = new PortalUserResponse();
+        response.setUsername(portalUser.getUsername());
+        response.setId(portalUser.getId());
+        response.setEmail(portalUser.getEmail());
+        response.setPhoneNumber(portalUser.getPhoneNumber());
+        response.setDateCreated(portalUser.getDateCreated().toString());
+        response.setHasEverLoggedIn(membership.isHasEverLoggedIn());
+        response.setLastName(portalUser.getLastName());
+        response.setFirstName(portalUser.getFirstName());
+        return response;
+    }
 }
