@@ -5,13 +5,12 @@ import com.cl.accounts.entity.PortalAccount;
 import com.cl.accounts.entity.PortalUser;
 import com.cl.accounts.entity.QMembership;
 import com.cl.accounts.enumeration.EntityStatusConstant;
-import com.codelab.accounts.dao.AppRepository;
+import com.codelab.accounts.dao.EntityRepository;
 import com.codelab.accounts.dao.MembershipDao;
 import com.codelab.accounts.service.membership.MembershipService;
 import com.querydsl.core.types.Predicate;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -24,12 +23,12 @@ import java.util.Optional;
 @Named
 public class MembershipServiceImpl implements MembershipService {
 
-    private final AppRepository appRepository;
+    private final EntityRepository entityRepository;
 
     private final MembershipDao membershipDao;
 
-    public MembershipServiceImpl(AppRepository appRepository, MembershipDao membershipDao) {
-        this.appRepository = appRepository;
+    public MembershipServiceImpl(EntityRepository entityRepository, MembershipDao membershipDao) {
+        this.entityRepository = entityRepository;
         this.membershipDao = membershipDao;
     }
 
@@ -42,7 +41,7 @@ public class MembershipServiceImpl implements MembershipService {
         membership.setHasEverLoggedIn(false);
         membership.setStatus(EntityStatusConstant.ACTIVE);
         membership.setPortalUser(portalUser);
-        appRepository.persist(membership);
+        entityRepository.persist(membership);
         return membership;
     }
 

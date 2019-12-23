@@ -6,7 +6,7 @@ import com.cl.accounts.entity.PortalUser;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.cl.accounts.enumeration.PortalUserAuthenticationTypeConstant;
 import com.cl.accounts.enumeration.PortalUserTypeConstant;
-import com.codelab.accounts.dao.AppRepository;
+import com.codelab.accounts.dao.EntityRepository;
 import com.codelab.accounts.domain.enumeration.SystemRoleTypeConstant;
 import com.codelab.accounts.domain.request.UserCreationDto;
 import com.codelab.accounts.domain.response.PortalUserResponse;
@@ -25,7 +25,7 @@ import java.util.Collections;
  */
 @Named
 public class UserServiceImpl implements UserService {
-    private final AppRepository appRepository;
+    private final EntityRepository entityRepository;
 
     private final BCryptPasswordEncoder passwordEncoder;
 
@@ -33,8 +33,8 @@ public class UserServiceImpl implements UserService {
 
     private final MemberRoleService memberRoleService;
 
-    public UserServiceImpl(AppRepository appRepository, BCryptPasswordEncoder passwordEncoder, MembershipService membershipService, MemberRoleService memberRoleService) {
-        this.appRepository = appRepository;
+    public UserServiceImpl(EntityRepository entityRepository, BCryptPasswordEncoder passwordEncoder, MembershipService membershipService, MemberRoleService memberRoleService) {
+        this.entityRepository = entityRepository;
         this.passwordEncoder = passwordEncoder;
         this.membershipService = membershipService;
         this.memberRoleService = memberRoleService;
@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
         portalUser.setDateCreated(Timestamp.from(Instant.now()));
         portalUser.setAuthenticationType(PortalUserAuthenticationTypeConstant.IDENTIFIER_PASSWORD_CREDENTIALS);
         portalUser.setType(PortalUserTypeConstant.PORTAL_USER);
-        appRepository.persist(portalUser);
+        entityRepository.persist(portalUser);
         Membership membership = membershipService.grantMembership(portalAccount, portalUser);
         memberRoleService.grantRole(membership, Collections.singleton(SystemRoleTypeConstant.ADMIN.getValue()));
         return portalUser;
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
         portalUser.setDateCreated(Timestamp.from(Instant.now()));
         portalUser.setAuthenticationType(PortalUserAuthenticationTypeConstant.API_CREDENTIALS);
         portalUser.setType(PortalUserTypeConstant.EXTERNAL_SYSTEM_USER);
-        appRepository.persist(portalUser);
+        entityRepository.persist(portalUser);
         Membership membership = membershipService.grantMembership(portalAccount, portalUser);
         memberRoleService.grantRole(membership, Collections.singleton(SystemRoleTypeConstant.ADMIN.getValue()));
         return portalUser;
@@ -85,6 +85,7 @@ public class UserServiceImpl implements UserService {
         response.setHasEverLoggedIn(membership.isHasEverLoggedIn());
         response.setLastName(portalUser.getLastName());
         response.setFirstName(portalUser.getFirstName());
+        response.setStatus(portalUser.getStatus());
         return response;
     }
 }

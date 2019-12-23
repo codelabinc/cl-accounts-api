@@ -1,14 +1,12 @@
 package com.codelab.accounts.conf.loader;
 
-import com.cl.accounts.entity.Permission;
-import com.cl.accounts.entity.PortalAccount;
-import com.cl.accounts.entity.Role;
-import com.cl.accounts.entity.RolePermission;
+import com.cl.accounts.entity.*;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.codelab.accounts.dao.*;
 import com.codelab.accounts.domain.enumeration.SystemPermissionTypeConstant;
 import com.codelab.accounts.domain.enumeration.SystemRoleTypeConstant;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 /**
@@ -17,54 +15,51 @@ import javax.inject.Named;
 @Named
 public class RolePermissionLoader {
 
-    private final RoleDao roleDao;
-    private final PermissionDao permissionDao;
+    @Inject
+    private RoleDao roleDao;
 
-    private final RolePermissionDao rolePermissionDao;
+    @Inject
+    private PermissionDao permissionDao;
 
-    public RolePermissionLoader(RoleDao roleDao, PermissionDao permissionDao,
-                                RolePermissionDao rolePermissionDao) {
-        this.roleDao = roleDao;
-        this.permissionDao = permissionDao;
-        this.rolePermissionDao = rolePermissionDao;
-    }
-
-    public void loadRoles() {
+    public void loadRoles(App app) {
         for (SystemRoleTypeConstant roleTypeConstant : SystemRoleTypeConstant.values()) {
             roleDao.findByNameAndStatus(roleTypeConstant.getValue(), EntityStatusConstant.ACTIVE).orElseGet(() -> {
                 Role role = new Role();
                 role.setName(roleTypeConstant.getValue());
                 role.setStatus(EntityStatusConstant.ACTIVE);
+                role.setApp(app);
                 roleDao.save(role);
                 return role;
             });
         }
     }
 
-    public void loadPermissions() {
+    public void loadPermissions(Role role, App app) {
         for (SystemPermissionTypeConstant permissionConstant : SystemPermissionTypeConstant.values()) {
             permissionDao.findByNameAndStatus(permissionConstant.getValue(), EntityStatusConstant.ACTIVE).orElseGet(() -> {
                 Permission permission = new Permission();
                 permission.setName(permissionConstant.getValue());
                 permission.setStatus(EntityStatusConstant.ACTIVE);
+                permission.setApp(app);
+                permission.setRole(role);
                 permissionDao.save(permission);
                 return permission;
             });
         }
     }
 
-    public void loadPermissionsForRole(Role role, PortalAccount portalAccount, SystemPermissionTypeConstant... permissions) {
+    public void loadPermissionsForRole(Role role, App app, SystemPermissionTypeConstant... permissions) {
         for (SystemPermissionTypeConstant permissionConstant: permissions) {
             Permission permission = permissionDao.findByNameAndStatus(permissionConstant.getValue(), EntityStatusConstant.ACTIVE)
                     .orElseThrow(() -> new IllegalArgumentException(String.format("Permission %s not found", permissionConstant)));
-            rolePermissionDao.findByRoleAndPermissionAndStatus(role, permission, EntityStatusConstant.ACTIVE).orElseGet(() -> {
-                RolePermission rolePermission = new RolePermission();
-                rolePermission.setRole(role);
-                rolePermission.setPermission(permission);
-                rolePermission.setStatus(EntityStatusConstant.ACTIVE);
-                rolePermission.setPortalAccount(portalAccount);
-                rolePermissionDao.save(rolePermission);
-                return rolePermission;
+            permissionDao.findByNameAndRoleAndAppAndStatus(permissionConstant.getValue(), role, app, EntityStatusConstant.ACTIVE)
+                    .orElseGet(() -> {
+                permission.setRole(role);
+                permission.setApp(app);
+                permission.setName(permissionConstant.getValue());
+                permission.setStatus(EntityStatusConstant.ACTIVE);
+                permissionDao.save(permission);
+                return permission;
             });
         }
     }

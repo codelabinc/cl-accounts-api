@@ -11,6 +11,14 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    test {
+        resources {
+            srcDirs = ['src/test/resources', "${project.rootDir}/data-model/test"]
+        }
+    }
+}
+
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
