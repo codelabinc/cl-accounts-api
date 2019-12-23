@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @Named
-class AppRepositoryImpl implements AppRepository {
+class EntityRepositoryImpl implements EntityRepository {
 
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 

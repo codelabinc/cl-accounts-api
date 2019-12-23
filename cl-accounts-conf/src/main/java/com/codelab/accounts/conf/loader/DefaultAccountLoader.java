@@ -1,6 +1,6 @@
 package com.codelab.accounts.conf.loader;
 
-import com.cl.accounts.entity.PortalAccount;
+import com.cl.accounts.entity.App;
 import com.cl.accounts.entity.Role;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.cl.accounts.enumeration.PortalAccountTypeConstant;
@@ -12,9 +12,10 @@ import com.codelab.accounts.domain.request.AccountCreationDto;
 import com.codelab.accounts.domain.request.AddressDto;
 import com.codelab.accounts.domain.request.UserCreationDto;
 import com.codelab.accounts.service.account.AccountService;
-import com.codelab.accounts.service.user.UserService;
+import com.codelab.accounts.service.app.AppService;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 /**
@@ -23,33 +24,32 @@ import javax.inject.Named;
 @Named
 public class DefaultAccountLoader {
 
-    private final AccountService accountService;
+    @Inject
+    private AccountService accountService;
 
-    private final UserService userService;
+    @Inject
+    private RolePermissionLoader rolePermissionLoader;
 
-    private final RolePermissionLoader rolePermissionLoader;
+    @Inject
+    private RoleDao roleDao;
 
-    private final RoleDao roleDao;
-
-    public DefaultAccountLoader(AccountService accountService, UserService userService, RolePermissionLoader rolePermissionLoader, RoleDao roleDao) {
-        this.accountService = accountService;
-        this.userService = userService;
-        this.rolePermissionLoader = rolePermissionLoader;
-        this.roleDao = roleDao;
-    }
-
+    @Inject
+    private AppService appService;
 
     @Transactional
     public void createDefaultAccount(){
+        App app = appService.createApp("Codelab Technology Solutions Ltd.");
+        rolePermissionLoader.loadRoles(app);
         AccountCreationDto accountCreationDto = new AccountCreationDto();
-        accountCreationDto.setName("Codelab Technology Solutions Ltd.");
-        accountCreationDto.setAccountType(PortalAccountTypeConstant.CODELAB.getValue());
+        accountCreationDto.setName(app.getName());
+        accountCreationDto.setAccountType(PortalAccountTypeConstant.SUPER_SYSTEM.getValue());
         accountCreationDto.setAddress(addressDto());
         accountCreationDto.setAdminUser(userCreationDto());
-        PortalAccount portalAccount = accountService.createPortalAccount(accountCreationDto);
+        accountService.createPortalAccount(accountCreationDto);
         Role role = roleDao.findByNameAndStatus(SystemRoleTypeConstant.ADMIN.getValue(), EntityStatusConstant.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Role not found"));
-        rolePermissionLoader.loadPermissionsForRole(role, portalAccount, SystemPermissionTypeConstant.values() );
+        rolePermissionLoader.loadPermissions(role, app);
+        rolePermissionLoader.loadPermissionsForRole(role, app, SystemPermissionTypeConstant.values() );
     }
 
     private AddressDto addressDto() {

@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-public interface AppRepository {
+public interface EntityRepository {
 
     <E> long count(Class<E> type);
 

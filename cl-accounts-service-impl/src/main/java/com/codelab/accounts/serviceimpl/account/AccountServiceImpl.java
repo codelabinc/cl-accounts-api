@@ -3,12 +3,13 @@ package com.codelab.accounts.serviceimpl.account;
 import com.cl.accounts.entity.PortalAccount;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.cl.accounts.enumeration.PortalAccountTypeConstant;
-import com.codelab.accounts.dao.AppRepository;
+import com.codelab.accounts.dao.EntityRepository;
 import com.codelab.accounts.domain.qualifier.AccountCodeSequence;
 import com.codelab.accounts.domain.request.AccountCreationDto;
 import com.codelab.accounts.domain.request.AccountUpdateDto;
 import com.codelab.accounts.domain.response.AccountResponse;
 import com.codelab.accounts.service.account.AccountService;
+import com.codelab.accounts.service.app.AppService;
 import com.codelab.accounts.service.sequence.SequenceGenerator;
 import com.codelab.accounts.service.user.UserService;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,15 +26,18 @@ public class AccountServiceImpl implements AccountService {
 
     private final SequenceGenerator accountCodeGenerator;
 
-    private final AppRepository appRepository;
+    private final EntityRepository entityRepository;
 
     private final UserService userService;
 
+    private final AppService appService;
+
     public AccountServiceImpl(@AccountCodeSequence SequenceGenerator accountCodeGenerator,
-                              AppRepository appRepository, UserService userService) {
+                              EntityRepository entityRepository, UserService userService, AppService appService) {
         this.accountCodeGenerator = accountCodeGenerator;
-        this.appRepository = appRepository;
+        this.entityRepository = entityRepository;
         this.userService = userService;
+        this.appService = appService;
     }
 
     @Override
@@ -43,10 +47,11 @@ public class AccountServiceImpl implements AccountService {
         portalAccount.setName(dto.getName().trim());
         portalAccount.setCode(accountCodeGenerator.getNext());
         portalAccount.setDateCreated(Timestamp.from(Instant.now()));
+        portalAccount.setApp(appService.createApp(dto.getName()));
         //ToDo persist description
         portalAccount.setStatus(EntityStatusConstant.ACTIVE);
         portalAccount.setType(PortalAccountTypeConstant.valueOf(dto.getAccountType()));
-        portalAccount = appRepository.persist(portalAccount);
+        portalAccount = entityRepository.persist(portalAccount);
 
         userService.createPortalUser(portalAccount, dto.getAdminUser());
         userService.createSystemPortalUser(portalAccount);
@@ -66,7 +71,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public PortalAccount updatePortalAccount(PortalAccount portalAccount, AccountUpdateDto dto) {
         portalAccount.setName(dto.getName());
-        appRepository.merge(portalAccount);
+        entityRepository.merge(portalAccount);
         return portalAccount;
     }
 
@@ -74,7 +79,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public PortalAccount deactivatePortalAccount(PortalAccount portalAccount) {
         portalAccount.setStatus(EntityStatusConstant.DEACTIVATED);
-        appRepository.merge(portalAccount);
+        entityRepository.merge(portalAccount);
         return portalAccount;
     }
 }

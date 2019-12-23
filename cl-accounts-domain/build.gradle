@@ -13,7 +13,7 @@ repositories {
 
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(dir: "${project.rootDir}/data-model", include: ['*.jar'])
     compile group: 'javax.inject', name: 'javax.inject', version: '1'
     compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'

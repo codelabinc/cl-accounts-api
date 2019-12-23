@@ -3,8 +3,7 @@ package com.codelab.accounts.coreapi.controller;
 import com.cl.accounts.entity.Membership;
 import com.cl.accounts.entity.QMembership;
 import com.cl.accounts.enumeration.EntityStatusConstant;
-import com.codelab.accounts.dao.AppRepository;
-import com.codelab.accounts.dao.MembershipDao;
+import com.codelab.accounts.dao.EntityRepository;
 import com.codelab.accounts.domain.response.PortalUserResponse;
 import com.codelab.accounts.service.user.UserService;
 import com.querydsl.core.types.Predicate;
@@ -26,7 +25,7 @@ import javax.inject.Inject;
 public class UserController {
 
     @Inject
-    private AppRepository appRepository;
+    private EntityRepository entityRepository;
 
     @Inject
     private UserService userService;
@@ -35,7 +34,7 @@ public class UserController {
     public Page<PortalUserResponse> getUsers(@QuerydslPredicate(root = Membership.class) Predicate predicate,
                                  Pageable pageable) {
         QMembership qMembership = QMembership.membership;
-        JPAQuery<Membership> membershipJPAQuery = appRepository.startJPAQueryFrom(qMembership);
+        JPAQuery<Membership> membershipJPAQuery = entityRepository.startJPAQueryFrom(qMembership);
 
         membershipJPAQuery.innerJoin(qMembership.portalUser)
                 .where(qMembership.portalUser.status.eq(EntityStatusConstant.ACTIVE))
@@ -47,7 +46,7 @@ public class UserController {
         }
         membershipJPAQuery.where(predicate);
 
-        return appRepository.fetchPagedResults(membershipJPAQuery, membership ->
+        return entityRepository.fetchPagedResults(membershipJPAQuery, membership ->
                 userService.toUserResponse(membership.getPortalUser(), membership));
 
     }
