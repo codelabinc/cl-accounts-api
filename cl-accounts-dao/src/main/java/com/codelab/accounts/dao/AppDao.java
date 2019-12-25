@@ -15,6 +15,8 @@ public interface AppDao extends JpaRepository<App, Long>, QuerydslPredicateExecu
         QuerydslBinderCustomizer<QApp> {
     Optional<App> findByNameIgnoreCaseAndStatus(String name, EntityStatusConstant status);
 
+    Optional<App> findByCodeIgnoreCaseAndStatus(String code, EntityStatusConstant status);
+
     @Override
     default void customize(QuerydslBindings bindings, QApp root){
         bindings.bind(root.name).first(StringExpression::containsIgnoreCase);
