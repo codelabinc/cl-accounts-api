@@ -40,5 +40,6 @@
         <mapping resource="com/cl/accounts/entity/JwKey.hbm.xml"/>
         <mapping resource="com/cl/accounts/entity/Setting.hbm.xml"/>
         <mapping resource="com/cl/accounts/entity/App.hbm.xml"/>
+        <mapping resource="com/cl/accounts/entity/EventNotification.hbm.xml"/>
     </session-factory>
 </hibernate-configuration>

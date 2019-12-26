@@ -47,8 +47,7 @@ public class AccountServiceImpl implements AccountService {
         portalAccount.setName(dto.getName().trim());
         portalAccount.setCode(accountCodeGenerator.getNext());
         portalAccount.setDateCreated(Timestamp.from(Instant.now()));
-        portalAccount.setApp(appService.createApp(dto.getName()));
-        //ToDo persist description
+        portalAccount.setApp(appService.createApp(dto.getName(), dto.getDescription()));
         portalAccount.setStatus(EntityStatusConstant.ACTIVE);
         portalAccount.setType(PortalAccountTypeConstant.valueOf(dto.getAccountType()));
         portalAccount = entityRepository.persist(portalAccount);

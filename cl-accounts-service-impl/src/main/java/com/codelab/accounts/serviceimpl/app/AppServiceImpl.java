@@ -3,6 +3,7 @@ package com.codelab.accounts.serviceimpl.app;
 import com.cl.accounts.entity.App;
 import com.cl.accounts.entity.QMembership;
 import com.cl.accounts.entity.QPortalAccount;
+import com.cl.accounts.enumeration.AppModeConstant;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.cl.accounts.enumeration.PortalUserAuthenticationTypeConstant;
 import com.codelab.accounts.dao.AppDao;
@@ -36,11 +37,13 @@ public class AppServiceImpl implements AppService {
     private SequenceGenerator appCodeGenerator;
 
     @Override
-    public App createApp(String name) {
+    public App createApp(String name, String description) {
         return appDao.findByNameIgnoreCaseAndStatus(name, EntityStatusConstant.ACTIVE).orElseGet(() -> {
             App app = new App();
             app.setName(name);
             app.setCode(appCodeGenerator.getNext());
+            app.setDescription(description);
+            app.setMode(AppModeConstant.TEST);
             app.setStatus(EntityStatusConstant.ACTIVE);
             app.setDateCreated(Timestamp.from(Instant.now()));
             appDao.save(app);

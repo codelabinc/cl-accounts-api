@@ -45,6 +45,11 @@
                  <param name="enumClassName">com.cl.accounts.enumeration.EntityStatusConstant</param>
             </type>
         </property>
+        <property name="description" >
+            <column name="DESCRIPTION" not-null="false" unique="false" sql-type="VARCHAR(256)"/>
+            <type name="java.lang.String">
+            </type>
+        </property>
         <many-to-one name="app" class="com.cl.accounts.entity.App" foreign-key="PORTAL_ACCOUNT_APP_FKC" lazy="proxy" fetch="select">
             <column name="APP_FK" not-null="true" sql-type="BIGINT"/>
         </many-to-one>

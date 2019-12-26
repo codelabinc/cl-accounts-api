@@ -34,5 +34,16 @@
             <type name="java.sql.Timestamp">
             </type>
         </property>
+        <property name="mode" >
+            <column name="MODE" not-null="true" unique="false" sql-type="VARCHAR(256)"/>
+            <type name="org.andromda.persistence.hibernate.usertypes.HibernateEnumType">
+                 <param name="enumClassName">com.cl.accounts.enumeration.AppModeConstant</param>
+            </type>
+        </property>
+        <property name="description" >
+            <column name="DESCRIPTION" not-null="false" unique="false" sql-type="VARCHAR(256)"/>
+            <type name="java.lang.String">
+            </type>
+        </property>
     </class>
 </hibernate-mapping>
