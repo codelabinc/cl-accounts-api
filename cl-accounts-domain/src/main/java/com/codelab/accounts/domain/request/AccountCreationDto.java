@@ -10,6 +10,9 @@ import javax.validation.constraints.NotNull;
 public class AccountCreationDto {
     @NotBlank
     private String name;
+
+    private String description;
+
     @Valid
     @NotNull
     private AddressDto address;
@@ -49,5 +52,13 @@ public class AccountCreationDto {
 
     public void setAccountType(String accountType) {
         this.accountType = accountType;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

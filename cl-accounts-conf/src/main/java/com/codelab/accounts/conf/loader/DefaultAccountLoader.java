@@ -38,7 +38,7 @@ public class DefaultAccountLoader {
 
     @Transactional
     public void createDefaultAccount(){
-        App app = appService.createApp("Codelab Technology Solutions Ltd.");
+        App app = appService.createApp("Codelab Technology Solutions Ltd.", "Accounts App for all Codelab Applications");
         rolePermissionLoader.loadRoles(app);
         AccountCreationDto accountCreationDto = new AccountCreationDto();
         accountCreationDto.setName(app.getName());

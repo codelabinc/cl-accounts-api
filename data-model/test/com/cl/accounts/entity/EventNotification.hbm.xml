@@ -7,23 +7,28 @@
           "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping default-cascade="none">
-    <class name="com.cl.accounts.entity.EventSubscription" table="EVENT_SUBSCRIPTION" dynamic-insert="false" dynamic-update="false">
+    <class name="com.cl.accounts.entity.EventNotification" table="EVENT_NOTIFICATION" dynamic-insert="false" dynamic-update="false">
         <id name="id" type="java.lang.Long" unsaved-value="null">
             <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
             </generator>
         </id>
+        <property name="type" >
+            <column name="TYPE" not-null="true" unique="false" sql-type="VARCHAR(256)"/>
+            <type name="org.andromda.persistence.hibernate.usertypes.HibernateEnumType">
+                 <param name="enumClassName">com.cl.accounts.enumeration.EventNotificationTypeConstant</param>
+            </type>
+        </property>
         <property name="status" >
             <column name="STATUS" not-null="true" unique="false" sql-type="VARCHAR(256)"/>
             <type name="org.andromda.persistence.hibernate.usertypes.HibernateEnumType">
                  <param name="enumClassName">com.cl.accounts.enumeration.EntityStatusConstant</param>
             </type>
         </property>
-        <many-to-one name="app" class="com.cl.accounts.entity.App" foreign-key="EVENT_SUBSCRIPTION_APP_FKC" lazy="proxy" fetch="select">
-            <column name="APP_FK" not-null="true" sql-type="BIGINT"/>
-        </many-to-one>
-        <many-to-one name="eventNotification" class="com.cl.accounts.entity.EventNotification" foreign-key="EVENT_SUBSCRIPTION_EVENT_NOTIC" lazy="proxy" fetch="select">
-            <column name="EVENT_NOTIFICATION_FK" not-null="true" sql-type="BIGINT"/>
-        </many-to-one>
+        <property name="payload" >
+            <column name="PAYLOAD" not-null="true" unique="false" sql-type="CLOB"/>
+            <type name="org.andromda.persistence.hibernate.usertypes.HibernateStringClobType">
+            </type>
+        </property>
     </class>
 </hibernate-mapping>

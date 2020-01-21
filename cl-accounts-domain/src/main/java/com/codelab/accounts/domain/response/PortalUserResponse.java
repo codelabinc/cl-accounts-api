@@ -2,6 +2,8 @@ package com.codelab.accounts.domain.response;
 
 import com.cl.accounts.enumeration.EntityStatusConstant;
 
+import java.sql.Timestamp;
+
 /**
  * @author lordUhuru 08/12/2019
  */
@@ -13,7 +15,7 @@ public class PortalUserResponse {
     private String phoneNumber;
     private boolean hasEverLoggedIn;
     private EntityStatusConstant status;
-    private String dateCreated;
+    private Timestamp  dateCreated;
     private long id;
 
     public String getLastName() {
@@ -57,11 +59,11 @@ public class PortalUserResponse {
         this.status = status;
     }
 
-    public String getDateCreated() {
+    public Timestamp getDateCreated() {
         return dateCreated;
     }
 
-    public void setDateCreated(String dateCreated) {
+    public void setDateCreated(Timestamp dateCreated) {
         this.dateCreated = dateCreated;
     }
 

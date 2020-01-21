@@ -5,7 +5,7 @@ import com.cl.accounts.entity.PortalAccount;
 import com.cl.accounts.entity.PortalUser;
 import com.cl.accounts.entity.QMembership;
 import com.cl.accounts.enumeration.EntityStatusConstant;
-import com.codelab.accounts.dao.EntityRepository;
+import com.codelab.accounts.dao.EntityDao;
 import com.codelab.accounts.dao.MembershipDao;
 import com.codelab.accounts.service.membership.MembershipService;
 import com.querydsl.core.types.Predicate;
@@ -23,12 +23,12 @@ import java.util.Optional;
 @Named
 public class MembershipServiceImpl implements MembershipService {
 
-    private final EntityRepository entityRepository;
+    private final EntityDao entityDao;
 
     private final MembershipDao membershipDao;
 
-    public MembershipServiceImpl(EntityRepository entityRepository, MembershipDao membershipDao) {
-        this.entityRepository = entityRepository;
+    public MembershipServiceImpl(EntityDao entityDao, MembershipDao membershipDao) {
+        this.entityDao = entityDao;
         this.membershipDao = membershipDao;
     }
 
@@ -41,7 +41,7 @@ public class MembershipServiceImpl implements MembershipService {
         membership.setHasEverLoggedIn(false);
         membership.setStatus(EntityStatusConstant.ACTIVE);
         membership.setPortalUser(portalUser);
-        entityRepository.persist(membership);
+        entityDao.persist(membership);
         return membership;
     }
 

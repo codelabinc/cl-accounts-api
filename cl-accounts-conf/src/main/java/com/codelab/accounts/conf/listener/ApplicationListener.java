@@ -2,11 +2,9 @@ package com.codelab.accounts.conf.listener;
 
 
 import com.codelab.accounts.conf.loader.DefaultAccountLoader;
+import com.codelab.accounts.conf.loader.EventNotificationLoader;
 import com.codelab.accounts.conf.loader.LocationLoader;
-import com.codelab.accounts.dao.AppDao;
-import com.codelab.accounts.dao.CountryDao;
-import com.codelab.accounts.dao.PortalAccountDao;
-import com.codelab.accounts.dao.StateDao;
+import com.codelab.accounts.dao.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +33,12 @@ public class ApplicationListener {
     private AppDao appDao;
 
     @Inject
+    private EventNotificationDao eventNotificationDao;
+
+    @Inject
+    private EventNotificationLoader eventNotificationLoader;
+
+    @Inject
     private PortalAccountDao portalAccountDao;
 
     @PostConstruct
@@ -49,10 +53,16 @@ public class ApplicationListener {
         if(portalAccountDao.count() == 0) {
             defaultAccountLoader.createDefaultAccount();
         }
+
+        if(eventNotificationDao.count() == 0) {
+            eventNotificationLoader.loadEvents();
+        }
+
         logger.info("=====> Apps: {}", appDao.count());
         logger.info("=====> Countries: {}", countryDao.count());
         logger.info("=====> States: {}", stateDao.count());
         logger.info("=====> Portal Accounts : {}", portalAccountDao.count());
+        logger.info("=====> Event Notifications Types : {}", eventNotificationDao.count());
 
     }
 }
