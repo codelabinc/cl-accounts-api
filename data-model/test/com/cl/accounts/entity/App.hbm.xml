@@ -45,5 +45,8 @@
             <type name="java.lang.String">
             </type>
         </property>
+        <many-to-one name="webHook" class="com.cl.accounts.entity.WebHook" foreign-key="APP_WEB_HOOK_FKC" lazy="proxy" fetch="select">
+            <column name="WEB_HOOK_FK" not-null="false" sql-type="BIGINT"/>
+        </many-to-one>
     </class>
 </hibernate-mapping>

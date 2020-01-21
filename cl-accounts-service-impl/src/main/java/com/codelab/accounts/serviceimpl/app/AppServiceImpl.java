@@ -10,6 +10,7 @@ import com.codelab.accounts.dao.AppDao;
 import com.codelab.accounts.dao.MembershipDao;
 import com.codelab.accounts.dao.PortalAccountDao;
 import com.codelab.accounts.domain.qualifier.AppCodeSequence;
+import com.codelab.accounts.domain.response.AppResponse;
 import com.codelab.accounts.domain.response.AppStatisticsResponse;
 import com.codelab.accounts.service.app.AppService;
 import com.codelab.accounts.service.sequence.SequenceGenerator;
@@ -67,5 +68,11 @@ public class AppServiceImpl implements AppService {
                 .and(qMembership.portalUser.authenticationType.eq(PortalUserAuthenticationTypeConstant.IDENTIFIER_PASSWORD_CREDENTIALS)));
         appStat.setTotalActiveUsers(membershipDao.count(totalUserPredicate));
         return appStat;
+    }
+
+    @Override
+    public AppResponse toResponse(App app) {
+        AppResponse response = new AppResponse(app.getName(), app.getCode(), app.getStatus(), app.getDateCreated(), app.getMode(), app.getDescription(), app.getWebHook());
+        return response;
     }
 }

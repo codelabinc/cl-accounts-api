@@ -4,7 +4,7 @@ package com.codelab.accounts.serviceimpl.account;
 import com.cl.accounts.entity.ApiKey;
 import com.cl.accounts.entity.PortalAccount;
 import com.cl.accounts.enumeration.EntityStatusConstant;
-import com.codelab.accounts.dao.EntityRepository;
+import com.codelab.accounts.dao.EntityDao;
 import com.codelab.accounts.domain.qualifier.ApiKeySequence;
 import com.codelab.accounts.service.account.ApiKeyService;
 import com.codelab.accounts.service.sequence.SequenceGenerator;
@@ -24,11 +24,11 @@ public class ApiKeyServiceImpl implements ApiKeyService {
     final
     SequenceGenerator apiKeySequenceService;
 
-    private final EntityRepository entityRepository;
+    private final EntityDao entityDao;
 
-    public ApiKeyServiceImpl(@ApiKeySequence SequenceGenerator apiKeySequenceService, EntityRepository entityRepository) {
+    public ApiKeyServiceImpl(@ApiKeySequence SequenceGenerator apiKeySequenceService, EntityDao entityDao) {
         this.apiKeySequenceService = apiKeySequenceService;
-        this.entityRepository = entityRepository;
+        this.entityDao = entityDao;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ApiKeyServiceImpl implements ApiKeyService {
         apiKey.setKey(generateApiKeyFrom(apiKeySequenceService.getNextLong()));
         apiKey.setStatus(EntityStatusConstant.ACTIVE);
         apiKey.setPortalAccount(portalAccount);
-        entityRepository.persist(apiKey);
+        entityDao.persist(apiKey);
         return apiKey;
     }
 

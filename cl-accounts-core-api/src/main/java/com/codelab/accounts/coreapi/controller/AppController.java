@@ -4,7 +4,8 @@ import com.cl.accounts.entity.*;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.codelab.accounts.conf.exception.NotFoundException;
 import com.codelab.accounts.dao.AppDao;
-import com.codelab.accounts.dao.EntityRepository;
+import com.codelab.accounts.dao.EntityDao;
+import com.codelab.accounts.domain.response.AppResponse;
 import com.codelab.accounts.domain.response.AppStatisticsResponse;
 import com.codelab.accounts.service.app.AppService;
 import com.codelab.accounts.service.membership.MembershipService;
@@ -22,13 +23,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/apps")
 public class AppController {
 
     @Inject
-    private EntityRepository entityRepository;
+    private EntityDao entityDao;
 
     @Inject
     private MembershipService membershipService;
@@ -48,7 +51,7 @@ public class AppController {
                              Pageable pageable) {
         PortalUser portalUser = requestPrincipalProvider.get().getLoggedInUser();
         QMembership qMembership = QMembership.membership;
-        JPAQuery<Membership> qMembershipJPAQuery = entityRepository.startJPAQueryFrom(QMembership.membership);
+        JPAQuery<Membership> qMembershipJPAQuery = entityDao.startJPAQueryFrom(QMembership.membership);
 
         qMembershipJPAQuery.where(qMembership.portalUser.eq(portalUser)
                 .and(qMembership.status.eq(EntityStatusConstant.ACTIVE))
@@ -59,13 +62,32 @@ public class AppController {
         }
         qMembershipJPAQuery.where(predicate);
 
-        return entityRepository.fetchPagedResults(qMembershipJPAQuery.select(qMembership.portalAccount.app), app -> app);
+        return entityDao.fetchPagedResults(qMembershipJPAQuery.select(qMembership.portalAccount.app), app -> app);
     }
 
     @GetMapping("/{code}")
-    public ResponseEntity<App> getApp(@PathVariable("code") String code) {
-        return ResponseEntity.ok(appDao.findByCodeIgnoreCaseAndStatus(code, EntityStatusConstant.ACTIVE)
-                .orElseThrow(() -> new NotFoundException(String.format("App with code %s not found", code))));
+    public ResponseEntity<AppResponse> getApp(@PathVariable("code") String code) {
+        QApp qApp = QApp.app;
+        JPAQuery<App> appJPAQuery = entityDao.startJPAQueryFrom(QApp.app);
+        Predicate predicate = qApp.code.equalsIgnoreCase(code);
+        appJPAQuery.leftJoin(qApp.webHook).fetchJoin();
+        appJPAQuery.where(predicate);
+        App app = entityDao.fetchOne(appJPAQuery)
+                .orElseThrow(() -> new NotFoundException(String.format("App with code %s not found", code)));
+        AppResponse appResponse = appService.toResponse(app);
+
+        JPAQuery<EventSubscription> eventSubscriptionJPAQuery = entityDao.startJPAQueryFrom(QEventSubscription.eventSubscription);
+        QEventSubscription qEventSubscription = QEventSubscription.eventSubscription;
+        qEventSubscription.app.eq(app)
+                .and(qEventSubscription.status.eq(EntityStatusConstant.ACTIVE));
+        eventSubscriptionJPAQuery.join(qEventSubscription.eventNotification)
+                .where(qEventSubscription.status.eq(EntityStatusConstant.ACTIVE)).fetchJoin();
+
+        List<EventSubscription> events = entityDao.fetchResultList(eventSubscriptionJPAQuery);
+        appResponse.setEvents(events.stream()
+                .map(EventSubscription::getEventNotification).collect(Collectors.toList()));
+
+        return ResponseEntity.ok(appResponse);
     }
 
     @GetMapping("/{code}/statistics")

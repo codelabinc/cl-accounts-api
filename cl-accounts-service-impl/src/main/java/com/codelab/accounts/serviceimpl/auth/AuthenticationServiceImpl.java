@@ -1,7 +1,7 @@
 package com.codelab.accounts.serviceimpl.auth;
 
 import com.cl.accounts.entity.*;
-import com.codelab.accounts.dao.EntityRepository;
+import com.codelab.accounts.dao.EntityDao;
 import com.codelab.accounts.domain.response.LoginResponse;
 import com.codelab.accounts.domain.response.NameCodeResponse;
 import com.codelab.accounts.domain.response.TokenResponse;
@@ -37,14 +37,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final TokenService tokenService;
 
-    private final EntityRepository entityRepository;
+    private final EntityDao entityDao;
 
-    public AuthenticationServiceImpl(MembershipService membershipService, MemberRoleService memberRoleService, PermissionService permissionService, TokenService tokenService, EntityRepository entityRepository) {
+    public AuthenticationServiceImpl(MembershipService membershipService, MemberRoleService memberRoleService, PermissionService permissionService, TokenService tokenService, EntityDao entityDao) {
         this.membershipService = membershipService;
         this.memberRoleService = memberRoleService;
         this.permissionService = permissionService;
         this.tokenService = tokenService;
-        this.entityRepository = entityRepository;
+        this.entityDao = entityDao;
     }
 
     @Override
@@ -52,14 +52,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public LoginResponse generateLoginResponse(PortalUser portalUser, PortalAccount portalAccount){
         List<String> permissions = new ArrayList<>();
         TokenResponse tokenResponse = new TokenResponse();
-        App app = entityRepository.findById(App.class, portalAccount.getApp().getId())
+        App app = entityDao.findById(App.class, portalAccount.getApp().getId())
                 .orElseThrow(() -> new IllegalArgumentException(String.format("App with id %s not found", portalAccount.getApp().getId())));
         tokenResponse.setAccount(new NameCodeResponse(portalAccount.getName(), portalAccount.getCode()));
         Membership membership = membershipService.getMembershipByPortalUserAndPortalAccount(portalUser, portalAccount)
                 .orElseThrow(() -> new IllegalArgumentException("No Membership for User"));
         if(membership.getRequestTokenRefresh()!= null && membership.getRequestTokenRefresh().equals(Boolean.TRUE)) {
             membership.setRequestTokenRefresh(Boolean.FALSE);
-            entityRepository.merge(membership);
+            entityDao.merge(membership);
         }
         tokenResponse.setUser(toUserResponse(portalUser, membership));
         tokenResponse.setRoles(memberRoleService.getRolesByMembership(membership)

@@ -23,8 +23,5 @@
             <type name="java.lang.String">
             </type>
         </property>
-        <many-to-one name="app" class="com.cl.accounts.entity.App" foreign-key="WEB_HOOK_APP_FKC" lazy="proxy" fetch="select">
-            <column name="APP_FK" not-null="true" sql-type="BIGINT"/>
-        </many-to-one>
     </class>
 </hibernate-mapping>

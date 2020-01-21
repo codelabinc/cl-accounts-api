@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @Named
-class EntityRepositoryImpl implements EntityRepository {
+class EntityDaoImpl implements EntityDao {
 
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
