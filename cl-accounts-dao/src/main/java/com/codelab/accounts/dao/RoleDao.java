@@ -1,5 +1,6 @@
 package com.codelab.accounts.dao;
 
+import com.cl.accounts.entity.App;
 import com.cl.accounts.entity.Role;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,5 +12,5 @@ import java.util.Optional;
  * @author lordUhuru 16/11/2019
  */
 public interface RoleDao extends JpaRepository<Role, Long>, QuerydslPredicateExecutor<Role> {
-    Optional<Role> findByNameAndStatus(String name, EntityStatusConstant status);
+    Optional<Role> findByNameAndAppAndStatus(String name, App app, EntityStatusConstant status);
 }

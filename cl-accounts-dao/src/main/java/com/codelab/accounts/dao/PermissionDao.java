@@ -14,4 +14,5 @@ import java.util.Optional;
 public interface PermissionDao extends JpaRepository<Permission, Long> {
     Optional<Permission> findByNameAndStatus(String name, EntityStatusConstant status);
     Optional<Permission> findByNameAndRoleAndAppAndStatus(String name, Role role, App app, EntityStatusConstant status);
+    long countAllByRoleAndStatus(Role role, EntityStatusConstant status);
 }

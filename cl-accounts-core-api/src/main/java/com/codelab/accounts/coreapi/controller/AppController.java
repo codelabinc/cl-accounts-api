@@ -83,9 +83,16 @@ public class AppController {
         eventSubscriptionJPAQuery.join(qEventSubscription.eventNotification)
                 .where(qEventSubscription.status.eq(EntityStatusConstant.ACTIVE)).fetchJoin();
 
+        JPAQuery<Role> roleJPAQuery = entityDao.startJPAQueryFrom(QRole.role);
+        QRole qRole = QRole.role;
+        Predicate rolePredicate = qRole.app.eq(app)
+                .and(qRole.status.eq(EntityStatusConstant.ACTIVE));
+        roleJPAQuery.where(rolePredicate);
+
         List<EventSubscription> events = entityDao.fetchResultList(eventSubscriptionJPAQuery);
         appResponse.setEvents(events.stream()
                 .map(EventSubscription::getEventNotification).collect(Collectors.toList()));
+        appResponse.setRoles(entityDao.fetchResultList(roleJPAQuery).stream().map(Role::getName).collect(Collectors.toList()));
 
         return ResponseEntity.ok(appResponse);
     }

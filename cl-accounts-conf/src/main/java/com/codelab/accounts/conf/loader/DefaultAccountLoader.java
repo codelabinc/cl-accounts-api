@@ -46,7 +46,7 @@ public class DefaultAccountLoader {
         accountCreationDto.setAddress(addressDto());
         accountCreationDto.setAdminUser(userCreationDto());
         accountService.createPortalAccount(accountCreationDto);
-        Role role = roleDao.findByNameAndStatus(SystemRoleTypeConstant.ADMIN.getValue(), EntityStatusConstant.ACTIVE)
+        Role role = roleDao.findByNameAndAppAndStatus(SystemRoleTypeConstant.ADMIN.getValue(), app, EntityStatusConstant.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Role not found"));
         rolePermissionLoader.loadPermissions(role, app);
         rolePermissionLoader.loadPermissionsForRole(role, app, SystemPermissionTypeConstant.values() );
