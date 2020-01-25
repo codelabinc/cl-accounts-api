@@ -17,6 +17,7 @@ public class AppResponse {
     private String description;
     private WebHook webHook;
     private List<EventNotification> events;
+    private List<String> roles;
 
     public AppResponse(String name, String code, EntityStatusConstant status, Timestamp dateCreated,
                        AppModeConstant mode, String description,
@@ -92,5 +93,13 @@ public class AppResponse {
 
     public void setEvents(List<EventNotification> events) {
         this.events = events;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 }

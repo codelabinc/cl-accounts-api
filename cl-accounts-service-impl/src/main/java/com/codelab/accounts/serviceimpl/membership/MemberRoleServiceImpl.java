@@ -1,9 +1,6 @@
 package com.codelab.accounts.serviceimpl.membership;
 
-import com.cl.accounts.entity.MemberRole;
-import com.cl.accounts.entity.Membership;
-import com.cl.accounts.entity.QMemberRole;
-import com.cl.accounts.entity.Role;
+import com.cl.accounts.entity.*;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.codelab.accounts.dao.EntityDao;
 import com.codelab.accounts.dao.MemberRoleDao;
@@ -36,13 +33,13 @@ public class MemberRoleServiceImpl implements MemberRoleService {
     }
 
     @Override
-    public Membership grantRole(Membership membership, Collection<String> roleTypes) {
+    public Membership grantRole(Membership membership, App app, Collection<String> roleTypes) {
         roleTypes.forEach(roleTypeConstant -> {
             MemberRole memberRole = new MemberRole();
             memberRole.setMembership(membership);
             memberRole.setStatus(EntityStatusConstant.ACTIVE);
             memberRole.setDateCreated(Timestamp.from(Instant.now()));
-            memberRole.setRole(roleDao.findByNameAndStatus(roleTypeConstant, EntityStatusConstant.ACTIVE)
+            memberRole.setRole(roleDao.findByNameAndAppAndStatus(roleTypeConstant, app, EntityStatusConstant.ACTIVE)
                     .orElseThrow(() -> new IllegalArgumentException(String.format("Role with name %s not found", roleTypeConstant))));
             entityDao.persist(memberRole);
         });

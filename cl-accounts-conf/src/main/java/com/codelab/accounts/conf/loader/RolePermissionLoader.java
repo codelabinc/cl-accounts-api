@@ -23,7 +23,7 @@ public class RolePermissionLoader {
 
     public void loadRoles(App app) {
         for (SystemRoleTypeConstant roleTypeConstant : SystemRoleTypeConstant.values()) {
-            roleDao.findByNameAndStatus(roleTypeConstant.getValue(), EntityStatusConstant.ACTIVE).orElseGet(() -> {
+            roleDao.findByNameAndAppAndStatus(roleTypeConstant.getValue(), app, EntityStatusConstant.ACTIVE).orElseGet(() -> {
                 Role role = new Role();
                 role.setName(roleTypeConstant.getValue());
                 role.setStatus(EntityStatusConstant.ACTIVE);

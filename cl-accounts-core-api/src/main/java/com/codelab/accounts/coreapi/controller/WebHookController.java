@@ -2,7 +2,6 @@ package com.codelab.accounts.coreapi.controller;
 
 import com.cl.accounts.entity.App;
 import com.cl.accounts.entity.QApp;
-import com.cl.accounts.entity.WebHook;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.codelab.accounts.conf.exception.NotFoundException;
 import com.codelab.accounts.dao.AppDao;

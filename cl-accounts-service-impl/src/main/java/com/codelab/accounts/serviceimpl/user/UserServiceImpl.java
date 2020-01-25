@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
         portalUser.setType(PortalUserTypeConstant.PORTAL_USER);
         entityDao.persist(portalUser);
         Membership membership = membershipService.grantMembership(portalAccount, portalUser);
-        memberRoleService.grantRole(membership, Collections.singleton(SystemRoleTypeConstant.ADMIN.getValue()));
+        memberRoleService.grantRole(membership, portalAccount.getApp(), Collections.singleton(SystemRoleTypeConstant.ADMIN.getValue()));
         return portalUser;
     }
 
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
         portalUser.setType(PortalUserTypeConstant.EXTERNAL_SYSTEM_USER);
         entityDao.persist(portalUser);
         Membership membership = membershipService.grantMembership(portalAccount, portalUser);
-        memberRoleService.grantRole(membership, Collections.singleton(SystemRoleTypeConstant.ADMIN.getValue()));
+        memberRoleService.grantRole(membership, portalAccount.getApp(), Collections.singleton(SystemRoleTypeConstant.ADMIN.getValue()));
         return portalUser;
     }
 
