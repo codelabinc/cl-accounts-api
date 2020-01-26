@@ -1,7 +1,6 @@
 package com.codelab.accounts.domain.response;
 
-import com.cl.accounts.entity.EventNotification;
-import com.cl.accounts.entity.WebHook;
+import com.cl.accounts.entity.*;
 import com.cl.accounts.enumeration.AppModeConstant;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 
@@ -17,7 +16,9 @@ public class AppResponse {
     private String description;
     private WebHook webHook;
     private List<EventNotification> events;
-    private List<String> roles;
+    private List<Role> roles;
+    private List<Permission> permissions;
+    private List<AppPermission> appPermissions;
 
     public AppResponse(String name, String code, EntityStatusConstant status, Timestamp dateCreated,
                        AppModeConstant mode, String description,
@@ -95,11 +96,27 @@ public class AppResponse {
         this.events = events;
     }
 
-    public List<String> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<String> roles) {
+    public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public List<Permission> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(List<Permission> permissions) {
+        this.permissions = permissions;
+    }
+
+    public List<AppPermission> getAppPermissions() {
+        return appPermissions;
+    }
+
+    public void setAppPermissions(List<AppPermission> appPermissions) {
+        this.appPermissions = appPermissions;
     }
 }

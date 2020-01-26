@@ -8,7 +8,6 @@ import com.codelab.accounts.dao.EntityDao;
 import com.codelab.accounts.domain.response.AppResponse;
 import com.codelab.accounts.domain.response.AppStatisticsResponse;
 import com.codelab.accounts.service.app.AppService;
-import com.codelab.accounts.service.membership.MembershipService;
 import com.codelab.accounts.service.principal.RequestPrincipal;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -32,9 +31,6 @@ public class AppController {
 
     @Inject
     private EntityDao entityDao;
-
-    @Inject
-    private MembershipService membershipService;
 
     @Inject
     private AppDao appDao;
@@ -83,16 +79,39 @@ public class AppController {
         eventSubscriptionJPAQuery.join(qEventSubscription.eventNotification)
                 .where(qEventSubscription.status.eq(EntityStatusConstant.ACTIVE)).fetchJoin();
 
+        QPermission qPermission = QPermission.permission;
+        JPAQuery<Permission> permissionJPAQuery = entityDao.startJPAQueryFrom(QPermission.permission);
+        permissionJPAQuery.leftJoin(qPermission.role).fetchJoin();
+        permissionJPAQuery.leftJoin(qPermission.app).fetchJoin();
+        Predicate permissionPredicate = qPermission.app.eq(app)
+                .and(qPermission.status.eq(EntityStatusConstant.ACTIVE))
+                .and(qPermission.role.app.eq(app))
+                .and(qPermission.role.status.eq(EntityStatusConstant.ACTIVE));
+
+        permissionJPAQuery.where(permissionPredicate);
+
+        List<Permission> permissions = entityDao.fetchResultList(permissionJPAQuery);
+        appResponse.setPermissions(permissions);
+
         JPAQuery<Role> roleJPAQuery = entityDao.startJPAQueryFrom(QRole.role);
         QRole qRole = QRole.role;
         Predicate rolePredicate = qRole.app.eq(app)
                 .and(qRole.status.eq(EntityStatusConstant.ACTIVE));
         roleJPAQuery.where(rolePredicate);
 
+        List<Role> roles = entityDao.fetchResultList(roleJPAQuery);
+        appResponse.setRoles(roles);
+
+        JPAQuery<AppPermission> appPermissionJPAQuery = entityDao.startJPAQueryFrom(QAppPermission.appPermission);
+        QAppPermission qAppPermission = QAppPermission.appPermission;
+        Predicate appPermissionPredicate = qAppPermission.app.eq(app)
+                .and(qAppPermission.status.eq(EntityStatusConstant.ACTIVE));
+        appPermissionJPAQuery.where(appPermissionPredicate);
+        appResponse.setAppPermissions(entityDao.fetchResultList(appPermissionJPAQuery));
+
         List<EventSubscription> events = entityDao.fetchResultList(eventSubscriptionJPAQuery);
         appResponse.setEvents(events.stream()
                 .map(EventSubscription::getEventNotification).collect(Collectors.toList()));
-        appResponse.setRoles(entityDao.fetchResultList(roleJPAQuery).stream().map(Role::getName).collect(Collectors.toList()));
 
         return ResponseEntity.ok(appResponse);
     }
