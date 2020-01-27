@@ -5,6 +5,7 @@ import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.codelab.accounts.conf.exception.NotFoundException;
 import com.codelab.accounts.dao.AppDao;
 import com.codelab.accounts.dao.EntityDao;
+import com.codelab.accounts.dao.MembershipDao;
 import com.codelab.accounts.domain.response.AppResponse;
 import com.codelab.accounts.domain.response.AppStatisticsResponse;
 import com.codelab.accounts.service.app.AppService;
@@ -36,6 +37,9 @@ public class AppController {
     private AppDao appDao;
 
     @Inject
+    private MembershipDao membershipDao;
+
+    @Inject
     private Provider<RequestPrincipal> requestPrincipalProvider;
 
     @Inject
@@ -48,17 +52,24 @@ public class AppController {
         PortalUser portalUser = requestPrincipalProvider.get().getLoggedInUser();
         QMembership qMembership = QMembership.membership;
         JPAQuery<Membership> qMembershipJPAQuery = entityDao.startJPAQueryFrom(QMembership.membership);
-
+        qMembershipJPAQuery.innerJoin(qMembership.portalAccount).fetchJoin();
         qMembershipJPAQuery.where(qMembership.portalUser.eq(portalUser)
                 .and(qMembership.status.eq(EntityStatusConstant.ACTIVE))
         );
-        qMembershipJPAQuery.offset(pageable.getOffset()).limit(pageable.getPageSize());
-        if (predicate == null) {
-            predicate = qMembership.id.gt(0);
-        }
-        qMembershipJPAQuery.where(predicate);
+        List<Membership> memberships = entityDao.fetchResultList(qMembershipJPAQuery);
+        QApp qApp = QApp.app;
+        JPAQuery<App> appJPAQuery = entityDao.startJPAQueryFrom(QApp.app);
+        qApp.id.in(memberships.stream().map(membership -> membership.getPortalAccount().getApp().getId()).collect(Collectors.toList()))
+                .and(qApp.status.eq(EntityStatusConstant.ACTIVE));
 
-        return entityDao.fetchPagedResults(qMembershipJPAQuery.select(qMembership.portalAccount.app), app -> app);
+
+        appJPAQuery.offset(pageable.getOffset()).limit(pageable.getPageSize());
+        if (predicate == null) {
+            predicate = qApp.id.gt(0);
+        }
+        appJPAQuery.where(predicate);
+
+        return entityDao.fetchPagedResults(appJPAQuery, app -> app);
     }
 
     @GetMapping("/{code}")
