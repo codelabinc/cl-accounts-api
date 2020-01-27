@@ -1,11 +1,13 @@
 package com.codelab.accounts.coreapi.controller;
 
+import com.cl.accounts.entity.App;
 import com.cl.accounts.entity.PortalAccount;
 import com.cl.accounts.entity.QPortalAccount;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.cl.accounts.enumeration.PortalAccountTypeConstant;
 import com.codelab.accounts.conf.exception.ApiException;
 import com.codelab.accounts.conf.exception.NotFoundException;
+import com.codelab.accounts.dao.AppDao;
 import com.codelab.accounts.dao.PortalAccountDao;
 import com.codelab.accounts.domain.request.AccountCreationDto;
 import com.codelab.accounts.domain.request.AccountUpdateDto;
@@ -32,6 +34,9 @@ public class AccountController {
     private final PortalAccountDao portalAccountDao;
 
     @Inject
+    private AppDao appDao;
+
+    @Inject
     private AccountService accountService;
 
     public AccountController(PortalAccountDao portalAccountDao) {
@@ -49,11 +54,15 @@ public class AccountController {
     }
 
     @PostMapping
-    public ResponseEntity<HttpStatus> createAccount(@RequestBody @Valid AccountCreationDto dto) {
+    public ResponseEntity<HttpStatus> createAccount( @RequestHeader("X-APP-CODE") String appCode, @RequestBody @Valid AccountCreationDto dto) {
+        App app = appDao.findByCodeIgnoreCaseAndStatus(appCode, EntityStatusConstant.ACTIVE)
+                .orElseThrow(() -> new NotFoundException(String.format("App with code %s not found", appCode)));
+
         QPortalAccount qPortalAccount = QPortalAccount.portalAccount;
 
        PortalAccount portalAccount = portalAccountDao.findOne(qPortalAccount.name.equalsIgnoreCase(dto.getName())
         .and(qPortalAccount.type.eq(PortalAccountTypeConstant.valueOf(dto.getAccountType()))
+                .and(qPortalAccount.app.eq(app))
                 .and(qPortalAccount.status.eq(EntityStatusConstant.ACTIVE)))).orElse(null);
        if(portalAccount != null) {
            throw new NotFoundException(String.format("Account with name %s Already Exists", dto.getName()));
