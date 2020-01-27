@@ -1,5 +1,6 @@
 package com.codelab.accounts.serviceimpl.account;
 
+import com.cl.accounts.entity.App;
 import com.cl.accounts.entity.PortalAccount;
 import com.cl.accounts.enumeration.EntityStatusConstant;
 import com.cl.accounts.enumeration.PortalAccountTypeConstant;
@@ -9,7 +10,6 @@ import com.codelab.accounts.domain.request.AccountCreationDto;
 import com.codelab.accounts.domain.request.AccountUpdateDto;
 import com.codelab.accounts.domain.response.AccountResponse;
 import com.codelab.accounts.service.account.AccountService;
-import com.codelab.accounts.service.app.AppService;
 import com.codelab.accounts.service.sequence.SequenceGenerator;
 import com.codelab.accounts.service.user.UserService;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,24 +30,21 @@ public class AccountServiceImpl implements AccountService {
 
     private final UserService userService;
 
-    private final AppService appService;
-
     public AccountServiceImpl(@AccountCodeSequence SequenceGenerator accountCodeGenerator,
-                              EntityDao entityDao, UserService userService, AppService appService) {
+                              EntityDao entityDao, UserService userService) {
         this.accountCodeGenerator = accountCodeGenerator;
         this.entityDao = entityDao;
         this.userService = userService;
-        this.appService = appService;
     }
 
     @Override
     @Transactional
-    public PortalAccount createPortalAccount(AccountCreationDto dto) {
+    public PortalAccount createPortalAccount(AccountCreationDto dto, App app) {
         PortalAccount portalAccount = new PortalAccount();
         portalAccount.setName(dto.getName().trim());
         portalAccount.setCode(accountCodeGenerator.getNext());
         portalAccount.setDateCreated(Timestamp.from(Instant.now()));
-        portalAccount.setApp(appService.createApp(dto.getName(), dto.getDescription()));
+        portalAccount.setApp(app);
         portalAccount.setStatus(EntityStatusConstant.ACTIVE);
         portalAccount.setType(PortalAccountTypeConstant.valueOf(dto.getAccountType()));
         portalAccount = entityDao.persist(portalAccount);

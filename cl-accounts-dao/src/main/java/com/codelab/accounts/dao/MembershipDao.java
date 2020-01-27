@@ -17,6 +17,5 @@ public interface MembershipDao extends JpaRepository<Membership, Long>, Querydsl
     @Override
     default void customize(QuerydslBindings bindings, QMembership root) {
         bindings.bind(root.portalAccount.code).first(StringExpression::containsIgnoreCase);
-
     }
 }
